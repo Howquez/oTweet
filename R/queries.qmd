@@ -1,0 +1,91 @@
+---
+title: "Query Twitter Data"
+format: 
+  html:
+    code-line-numbers: true
+    # code-block-border-left: "#00802F"
+jupyter: python3
+---
+
+# Scope
+
+This document uses snscrape's Python wrapper to scrape twitter data.
+
+# Requirements
+
+This requires two modules: `snscrape` and `pandas`.
+
+```{python modules}
+import snscrape.modules.twitter as sntwitter
+import pandas as pd
+```
+
+# General Idea
+
+This section describes how to scrape data using a singe query. 
+
+## Parameters
+
+To query the data, one needs to define some parameters defining the time frame (`start` and `end`) as well as the search terms (e.g. `#behavioral`).
+
+```{python define_query}
+#| eval: true
+start = '2023-01-15'
+end = '2023-02-01'
+keywords = '#EconTwitter' # 'metaverse fashion week'
+query = '{keywords} since:{start} until:{end}'.format(keywords=keywords, start=start, end=end)
+```
+
+## Query
+
+Having defined the parameters, I^[I took a considerable amount of inspiration from this [post](https://github.com/MartinBeckUT/TwitterScraper/blob/master/snscrape/python-wrapper/snscrape-python-wrapper.ipynb).] initiate an empty list called `tweets_list` which is then appended in a for loop that breaks after `30` iterations.
+
+In this loop, I specify the required columns in line 8 and the respective column names in line 11.
+
+```{python run_query}
+#| eval: true
+# Creating list to append tweet data to
+tweets_list = []
+
+# Using TwitterSearchScraper to scrape data and append tweets to list
+for i,tweet in enumerate(sntwitter.TwitterSearchScraper(query).get_items()):
+    if i>30:
+        break
+    tweets_list.append([tweet.date, tweet.conversationId, tweet.id, tweet.rawContent, tweet.likeCount, tweet.retweetCount, tweet.replyCount, tweet.lang, tweet.media, tweet.user.id, tweet.user.displayname, tweet.user.username, tweet.user.renderedDescription, tweet.user.profileImageUrl, tweet.user.followersCount, tweet.user.friendsCount])
+
+# create a dataframe from the tweets list above 
+tweets_df = pd.DataFrame(tweets_list, columns=['datetime', 'conversation_ID', 'tweet_ID', 'tweet',
+'likes', 'retweets', 'replies', 'language', 'media', 'user_ID', 'username', 'handle', 'user_description', 'user_image', 'user_followers', 'user_friends'])
+```
+
+## Data Manipulation
+
+I'd like the data to have an index column called `doc_id`.
+
+```{python add_id}
+tweets_df['doc_id'] = tweets_df.index
+```
+
+```{python}
+#| eval: false
+import re
+
+def extract_first_url(text):
+    urls = re.findall("(?P<url>https?://[\S]+)", str(text))
+    if urls:
+        return urls[0]
+    return None
+tweets_df['media'] = tweets_df['media'].apply(extract_first_url)
+tweets_df['media'] = tweets_df['media'].str.replace("'|,", '')
+```
+
+
+## Write Data
+
+Having scraped the data, I store it as a `.csv` file using the parameters defined above as a naming convention.
+
+```{python write_csv}
+#| eval: true
+file = '../otree/feed/static/tweets/sample_tweets.csv'
+tweets_df.to_csv(file, index=False, sep=';')
+```
