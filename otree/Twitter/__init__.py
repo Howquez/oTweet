@@ -1,9 +1,10 @@
 from otree.api import *
-import datetime
 import pandas as pd
 import numpy as np
 import itertools
 import re
+import httplib2
+
 
 
 doc = """
@@ -12,18 +13,19 @@ Your app description
 
 
 class C(BaseConstants):
-    NAME_IN_URL = 'feed'
+    NAME_IN_URL = 'Twitter'
     PLAYERS_PER_GROUP = None
     NUM_ROUNDS = 1
 
-    RULES_TEMPLATE = "feed/T_Rules.html"
-    PRIVACY_TEMPLATE = "feed/T_Privacy.html"
-    TWEET_TEMPLATE = "feed/T_Tweet.html"
-    ATTENTION_TEMPLATE = "feed/T_Attention_Check.html"
-    TOPICS_TEMPLATE = "feed/T_Trending_Topics.html"
+    RULES_TEMPLATE = "Twitter/T_Rules.html"
+    PRIVACY_TEMPLATE = "Twitter/T_Privacy.html"
+    TWEET_TEMPLATE = "Twitter/T_Tweet.html"
+    ATTENTION_TEMPLATE = "Twitter/T_Attention_Check.html"
+    TOPICS_TEMPLATE = "Twitter/T_Trending_Topics.html"
 
-    FEED_LENGTH = list(range(*{'start':0,'stop':41,'step':1}.values()))
-    TWEET_LENGTH = list(range(*{'start':0,'stop':41,'step':1}.values()))
+    N_TWEETS = 40
+    FEED_LENGTH = list(range(*{'start':0,'stop':N_TWEETS+1,'step':1}.values()))
+    TWEET_LENGTH = list(range(*{'start':0,'stop':N_TWEETS+1,'step':1}.values()))
 
 
 class Subsession(BaseSubsession):
@@ -36,7 +38,6 @@ class Group(BaseGroup):
 
 class Player(BasePlayer):
     treatment = models.StringField(doc='indicates the treatment a player is randomly assigned to')
-    privacy_time = models.FloatField(doc="counts the number of seconds the privacy statement was opened.", blank=True)
 
     # create like count fields
     for i in C.FEED_LENGTH:
@@ -49,6 +50,12 @@ class Player(BasePlayer):
     del i
 
 
+# FUNCTIONS -----
+def creating_session(subsession):
+    shuffle = itertools.cycle(['neutral', 'treatment'])
+    for player in subsession.get_players():
+        player.treatment = next(shuffle)
+
 
 # FUNCTIONS -----
 def creating_session(subsession):
@@ -56,25 +63,39 @@ def creating_session(subsession):
     for player in subsession.get_players():
         player.treatment = next(shuffle)
 
+h = httplib2.Http()
+
+def check_url_exists(url):
+    try:
+        resp = h.request(url, 'HEAD')
+        return int(resp[0]['status']) < 400
+    except Exception:
+        return False
 
 # PAGES
 class A_Intro(Page):
     form_model = "player"
-    form_fields = ["privacy_time"]
+    form_fields = []
 
 
 class B_Instructions(Page):
     @staticmethod
     def before_next_page(player, timeout_happened):
-        # read data and shuffle
-        tweets = pd.read_csv('feed/static/tweets/sample_tweets.csv', sep=';')
-        tweets = tweets.sample(frac=1)
-        tweets['index'] = range(1, len(tweets) + 1)
+
+        # read data
+        tweets = pd.read_csv('Twitter/static/tweets/sample_tweets.csv', sep=';')
+        tweets = pd.read_csv('https://raw.githubusercontent.com/Howquez/oTweet/main/otree/feed/static/tweets/sample_tweets.csv', sep=';')
 
         # reformat date
         tweets['datetime'] = pd.to_datetime(tweets['datetime'], errors='coerce')
         tweets['date'] = tweets['datetime'].dt.strftime('%d %b').str.replace(' ', '. ')
         tweets['date'] = tweets['date'].str.replace('^0', '', regex=True)
+
+        # sort by date
+        tweets = tweets.sort_values(by='date', ascending=False)
+
+        # subset first rows
+        tweets = tweets.head(C.N_TWEETS)
 
         # highlight hashtags, cashtags, mentions, etc.
         tweets['tweet'] = tweets['tweet'].str.replace(r'\B(\#[a-zA-Z0-9_]+\b)',
@@ -104,7 +125,9 @@ class B_Instructions(Page):
         tweets['pic_available'] = np.where(tweets['media'].str.match(pat='http'), True, False)
 
         # make profile pictures (if any) visible
-        tweets['profile_pic_available'] = np.where(tweets['user_image'].isnull(), False, True)
+        # tweets['profile_pic_available'] = np.where(tweets['user_image'].isnull(), False, True)
+        tweets['profile_pic_available'] = tweets['user_image'].apply(
+            lambda x: check_url_exists(x) if pd.notnull(x) else False)
 
         # create a name icon as a profile pic
         tweets['icon'] = tweets['username'].str[:2]
@@ -119,6 +142,10 @@ class B_Instructions(Page):
         # make number of followers a formatted string
         tweets['user_followers'] = tweets['user_followers'].map('{:,.0f}'.format).str.replace(',', '.')
 
+        # shuffle
+        # tweets = tweets.sample(frac=1)
+        tweets['index'] = range(1, len(tweets) + 1)
+
         # create row ID
         tweets['row'] = range(1, len(tweets) + 1)
 
@@ -131,7 +158,7 @@ class C_Feed(Page):
 
     @staticmethod
     def get_form_fields(player: Player):
-        items = player.participant.tweets['doc_id'].values.tolist()
+        items = player.participant.tweets['index'].values.tolist()
         items.insert(0, 0)
         return ['liked_item_' + str(n) for n in items] + \
                ['reply_to_item_' + str(n) for n in items]

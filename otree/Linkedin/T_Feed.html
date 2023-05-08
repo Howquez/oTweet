@@ -1,0 +1,131 @@
+<div class="col overflow-auto col-sm-12 col-md-6 col-lg-6 p-3" style="max-height: 100vh;">
+
+    <div class="card mt-5 mb-2 bg-white border-black-25" style="border-radius: 10px;">
+        <div class="row justify-content-start align-items-center mt-1">
+            <div class="col-2">
+                <img src="{{ pic }}" class="card-img p1 ms-3 poster">
+            </div>
+            <div class="col-10">
+                <form>
+                    <div class="mb-3 mt-3 me-3">
+                        <input type="email" class="form-control" placeholder="Start a post" style="border-radius: 50px; cursor: pointer;">
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <p class="fs-6 ms-3 text-center">
+                    <i class="bi bi-card-image text-primary"></i> <small class="ms-1 text-muted"><br class="d-block d-sm-none">Photo</small>
+                </p>
+            </div>
+            <div class="col">
+                <p class="fs-6 text-center">
+                    <i class="bi bi-caret-right-square-fill text-success"></i> <small class="ms-1 text-muted"><br class="d-block d-sm-none">Video</small>
+                </p>
+            </div>
+            <div class="col">
+                <p class="fs-6 text-center">
+                    <i class="bi bi-calendar-date text-warning"></i> <small class="ms-1 text-muted"><br class="d-block d-sm-none">Event</small>
+                </p>
+            </div>
+            <div class="col">
+                <p class="fs-6 me-3 text-center">
+                    <i class="bi bi-text-paragraph text-danger"></i> <small class="ms-1 text-muted"><br class="d-block d-sm-none">Article</small>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <hr>
+
+    {{ for i in posts.values() }}
+        <div class="card mb-2 bg-white border-black-25" style="border-radius: 10px;">
+            <div class="card-body bg-white border-bottom-0 mb-0 p-0" style="border-radius: 10px;">
+                <div class="row mb-0 pb-0 p-3">
+                    <div class="col-2 mb-0">
+                        <img src="{{i.user_image}}"
+                             class="card-img p1 mt-0 pt-0"
+                             style="width: 50px; height: 50px; position: relative; border-radius: 50px; object-fit: cover;">
+                    </div>
+                    <div class="col-10 mb-0">
+                        <p class="ms-0 ps-0 mt-1 mb-0" style="line-height: 75%">
+                            <small>
+                                <b class="">{{i.user_name}}</b>
+                                <br>
+                                <small class="text-muted">
+                                    {{i.user_role}}
+                                    <br>
+                                    {{i.time_passed}}
+                                </small>
+                            </small>
+                        </p>
+                    </div>
+                </div>
+                <p class="px-3 my-2">
+                    <small>{{i.text}}</small>
+                </p>
+                {{ if i.pic_available == True }}
+                    <div class="text-center">
+                        <img class="p-0 img-fluid px-2"
+                             src="{{i.media}}">
+                    </div>
+                {{ endif }}
+            </div>
+            <div class="card-footer bg-white border-top-0" style="border-bottom-left-radius: 10px; border-bottom-right-radius: 10px;">
+                <div class="d-flex justify-content-between">
+                    <small class="text-muted text-start">
+                        <i class="bi bi-hand-thumbs-up-fill text-primary"></i>
+                        <span class="like-count"> {{i.likes_count}} </span>
+                    </small>
+                    <small class="text-end text-muted">
+                        <span class="retweet-count">{{i.comments_count}} </span>
+                        comments
+                    </small>
+                </div>
+                <hr>
+                <div class="row justify-content-between align-items-start text-secondary">
+                    <div class="col col-2">
+                        <img src="{{ pic }}"
+                             class="card-img p-1 poster mx-0 mt-1">
+                    </div>
+                    <div class="col col-2 like-button" id="like_button_{{i.id}}">
+                        <div class="btn-container d-flex flex-column align-items-center">
+                            <small>
+                                <i class="bi bi-hand-thumbs-up fs-3 mr-2 like-icon" style="cursor: pointer"></i>
+                            </small>
+                        </div>
+                        <input class="like-field" type="hidden" name="liked_item_{{i.id}}" id="liked_item_{{i.id}}">
+                    </div>
+                    <div class="col col-2">
+                        <div class="btn-container d-flex flex-column align-items-center">
+                            <small>
+                                <i class="bi bi-chat-text fs-3 mr-2"></i>
+                            </small>
+                        </div>
+                    </div>
+                    <div class="col col-2">
+                        <div class="btn-container d-flex flex-column align-items-center">
+                            <small>
+                                <i class="bi bi-arrow-repeat fs-3 mr-2"></i>
+                            </small>
+                        </div>
+                    </div>
+                    <div class="col col-2">
+                        <div class="btn-container d-flex flex-column align-items-center">
+                            <small>
+                                <i class="bi bi-send fs-3 mr-2"></i>
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    {{ endfor }}
+
+    <div class="d-grid gap-2 mt-4">
+        <a class="btn btn-primary" href="https://ww2.unipark.de/uc/JaKrummenacher/c851?a={{participant.code}}" role="button">Survey</a>
+    </div>
+</div>

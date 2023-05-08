@@ -1,0 +1,30 @@
+{{ block scripts }}
+<script src="{{ static 'js/interaction.js' }}"></script>
+{{ endblock }}
+
+{{ block global_styles  }}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.3/font/bootstrap-icons.css">
+<style>
+    .otree-title {
+        display: none;
+    }
+</style>
+<link rel="stylesheet" href="{% static 'css/styles.css' %}">
+{{ endblock }}
+
+{{ block content }}
+<body class="bg-light p-0 m-0">
+
+    {{ include C.NAVBAR_TEMPLATE }}
+
+    <div class="container-fluid">
+        <div class="row" style="zindex: 0;">
+            {{ include C.COL_LEFT_TEMPLATE }}
+            {{ include C.FEED_TEMPLATE }}
+            {{ include C.COL_RIGHT_TEMPLATE }}
+
+        </div>
+    </div>
+
+</body>
+{{ endblock }}

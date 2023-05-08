@@ -3,7 +3,12 @@ from os import environ
 SESSION_CONFIGS = [
     dict(
         name='oTweet',
-        app_sequence=['feed'],
+        app_sequence=['Twitter'],
+        num_demo_participants=4,
+    ),
+    dict(
+        name='LinkedTree',
+        app_sequence=['Linkedin'],
         num_demo_participants=4,
     ),
 ]
@@ -17,7 +22,7 @@ SESSION_CONFIG_DEFAULTS = dict(
     real_world_currency_per_point=1.00, participation_fee=2.10, doc=""
 )
 
-PARTICIPANT_FIELDS = ['tweets', 'finished']
+PARTICIPANT_FIELDS = ['tweets', 'posts', 'finished']
 SESSION_FIELDS = ['prolific_completion_url']
 
 # ISO-639 code
