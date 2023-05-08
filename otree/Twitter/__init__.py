@@ -82,9 +82,9 @@ class B_Instructions(Page):
     @staticmethod
     def before_next_page(player, timeout_happened):
 
-        # read data
+        # read data either as a local csv or just enter an URL
         tweets = pd.read_csv('Twitter/static/tweets/sample_tweets.csv', sep=';')
-        tweets = pd.read_csv('https://raw.githubusercontent.com/Howquez/oTweet/main/otree/feed/static/tweets/sample_tweets.csv', sep=';')
+        tweets = pd.read_csv('https://raw.githubusercontent.com/Howquez/oTweet/main/otree/Twitter/static/tweets/sample_tweets.csv', sep=';')
 
         # reformat date
         tweets['datetime'] = pd.to_datetime(tweets['datetime'], errors='coerce')
