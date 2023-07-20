@@ -2,12 +2,12 @@ from os import environ
 
 SESSION_CONFIGS = [
     dict(
-        name='oTweet',
+        name='Twitter',
         app_sequence=['Twitter'],
         num_demo_participants=4,
     ),
     dict(
-        name='LinkedTree',
+        name='Linkedin',
         app_sequence=['Linkedin'],
         num_demo_participants=4,
     ),
@@ -19,7 +19,12 @@ SESSION_CONFIGS = [
 # e.g. self.session.config['participation_fee']
 
 SESSION_CONFIG_DEFAULTS = dict(
-    real_world_currency_per_point=1.00, participation_fee=2.10, doc=""
+    real_world_currency_per_point=1.00,
+    participation_fee=2.10,
+    tweets_url = 'https://raw.githubusercontent.com/Howquez/oTweet/main/otree/Twitter/static/tweets/sample_tweets.csv',
+    # Either use github links (raw) or a link to your google drive following this pattern: https://drive.google.com/uc?export=download&id=FILE_ID
+    # see how to retrieve that ID here: https://stackoverflow.com/a/62698638
+    doc=""
 )
 
 PARTICIPANT_FIELDS = ['tweets', 'posts', 'finished']

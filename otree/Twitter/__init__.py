@@ -62,6 +62,7 @@ def creating_session(subsession):
     shuffle = itertools.cycle(['clean', 'polluted'])
     for player in subsession.get_players():
         player.treatment = next(shuffle)
+        print(player.session.config['tweets_url'])
 
 h = httplib2.Http()
 
@@ -81,10 +82,11 @@ class A_Intro(Page):
 class B_Instructions(Page):
     @staticmethod
     def before_next_page(player, timeout_happened):
+        print(player.session.config['tweets_url'])
 
         # read data either as a local csv or just enter an URL
-        tweets = pd.read_csv('Twitter/static/tweets/sample_tweets.csv', sep=';')
-        tweets = pd.read_csv('https://raw.githubusercontent.com/Howquez/oTweet/main/otree/Twitter/static/tweets/sample_tweets.csv', sep=';')
+        # tweets = pd.read_csv('https://raw.githubusercontent.com/Howquez/oTweet/main/otree/Twitter/static/tweets/sample_tweets.csv', sep=';')
+        tweets = pd.read_csv(player.session.config['tweets_url'], sep=';')
 
         # reformat date
         tweets['datetime'] = pd.to_datetime(tweets['datetime'], errors='coerce')
