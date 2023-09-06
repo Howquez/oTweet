@@ -1,0 +1,60 @@
+{{ if i.sponsored }}
+
+<tr class="" style="background-color: #E5E4E2;">
+    <td>
+        <div class="row justify-content-start m-3">
+            <a class="card-body" href="{{i.url}}" target="_blank" style="text-decoration: none;">
+                <img class="p-0 img-fluid card-img mb-3" src="{{i.urlToImage}}">
+                <h5 class="card-title">{{i.title}}</h5>
+                <p class="card-text text-muted">
+                    <small>{{i.teaser}}</small>
+                </p>
+                <small class="text-dark"> Sponsored </small>
+            </a>
+        </div>
+    </td>
+</tr>
+
+{{ else }}
+
+<tr>
+    <td>
+        <div class="row justify-content-start m-3">
+            <div class="card-body" id="tweet_{{i.doc_id}}" data-bs-toggle="modal" data-bs-target="#modal_{{i.doc_id}}">
+                <img class="p-0 img-fluid card-img mb-3" src="{{i.urlToImage}}">
+                <p class='text-danger mb-1'>
+                    Some Tag
+                </p>
+                <h5 class="card-title">{{i.title}}</h5>
+                <p class="card-text text-muted">
+                    <small>{{i.teaser}}</small>
+                </p>
+                <small class="text-muted"> {{i.publishedAt}} &middot; {{i.author}}</small>
+            </div>
+        </div>
+    </td>
+</tr>
+
+<!-- Modal -->
+<div class="modal fade" id="modal_{{i.doc_id}}" data-bs-keyboard="false" tabindex="-1"
+     aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content p-3">
+            <div class="modal-header border-0">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h3 class="my-2 card-title" id="staticBackdropLabel">{{i.title}}</h3>
+                <img class="p-0 img-fluid card-img mb-3" src="{{i.urlToImage}}">
+                <small class="text-muted"> {{i.publishedAt}} &middot; {{i.author}}.</small>
+                <br><br>
+                <p class="article-font">
+                    {{i.content}}
+                </p>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{{ endif }}
